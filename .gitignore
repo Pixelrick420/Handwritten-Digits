@@ -1,5 +1,6 @@
 Dataset/
 .vscode/
+.gitignore
 __pycache__/
 *.pyc
 *.log
