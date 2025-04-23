@@ -23,44 +23,73 @@ The model is trained using mini-batch gradient descent.
 
 ### Mathematics
 
-#### ReLU Activation
-The ReLU activation function is defined as:
+## ReLU Activation
+The ReLU (Rectified Linear Unit) activation function is defined as:
 
-$$
-	{ReLU}(x) = \max(0, x)
-$$
+```math
+\text{ReLU}(x) = \max(0, x)
+```
 
-#### Softmax Activation
-The softmax function outputs a probability distribution:
+## Softmax Activation
+The softmax function outputs a probability distribution over classes:
 
-$$
-	{Softmax}(z_i) = \frac{e^{z_i - \max(z)}}{\sum_j e^{z_j - \max(z)}}
-$$
+```math
+\text{Softmax}(z_i) = \frac{e^{z_i - \max(z)}}{\sum_j e^{z_j - \max(z)}}
+```
 
-#### Forward Pass
-For an input \( X \), the network computes:
+## Forward Pass
+For an input vector \( X \), the forward propagation steps are:
 
-$$
-Z_1 = W_1X + b_1 \\
-A_1 = 	{ReLU}(Z_1) \\
-Z_2 = W_2A_1 + b_2 \\
-A_2 = 	{Softmax}(Z_2)
-$$
+```math
+Z^{[1]} = W^{[1]}X + b^{[1]}
+```
 
-#### Loss Function
-Cross-entropy loss is minimized using gradient descent with backpropagation.
+```math
+A^{[1]} = \text{ReLU}(Z^{[1]})
+```
 
-#### Backpropagation
-The gradients for each layer are computed using:
+```math
+Z^{[2]} = W^{[2]}A^{[1]} + b^{[2]}
+```
 
-$$
-dZ_2 = A_2 - Y \\
-dW_2 = \frac{1}{m}dZ_2 A_1^T \\
-db_2 = \frac{1}{m} \sum dZ_2 \\
-dZ_1 = W_2^T dZ_2 * 	{ReLU}'(Z_1) \\
-dW_1 = \frac{1}{m}dZ_1 X^T \\
-db_1 = \frac{1}{m} \sum dZ_1
-$$
+```math
+A^{[2]} = \text{Softmax}(Z^{[2]})
+```
+
+## Loss Function
+The loss function used is cross-entropy loss:
+
+```math
+\mathcal{L} = -\frac{1}{m} \sum_{i=1}^{m} Y^{(i)} \log(A^{[2](i)})
+```
+
+## Backpropagation
+The gradients are computed as follows:
+
+```math
+dZ^{[2]} = A^{[2]} - Y
+```
+
+```math
+dW^{[2]} = \frac{1}{m} dZ^{[2]} A^{[1]^T}
+```
+
+```math
+db^{[2]} = \frac{1}{m} \sum dZ^{[2]}
+```
+
+```math
+dZ^{[1]} = (W^{[2]^T} dZ^{[2]}) * \text{ReLU}'(Z^{[1]})
+```
+
+```math
+dW^{[1]} = \frac{1}{m} dZ^{[1]} X^T
+```
+
+```math
+db^{[1]} = \frac{1}{m} \sum dZ^{[1]}
+```
+
 
 ## GUI Application
 
