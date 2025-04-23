@@ -27,14 +27,14 @@ The model is trained using mini-batch gradient descent.
 The ReLU activation function is defined as:
 
 $$
-	ext{ReLU}(x) = \max(0, x)
+	{ReLU}(x) = \max(0, x)
 $$
 
 #### Softmax Activation
 The softmax function outputs a probability distribution:
 
 $$
-	ext{Softmax}(z_i) = \frac{e^{z_i - \max(z)}}{\sum_j e^{z_j - \max(z)}}
+	{Softmax}(z_i) = \frac{e^{z_i - \max(z)}}{\sum_j e^{z_j - \max(z)}}
 $$
 
 #### Forward Pass
@@ -42,9 +42,9 @@ For an input \( X \), the network computes:
 
 $$
 Z_1 = W_1X + b_1 \\
-A_1 = 	ext{ReLU}(Z_1) \\
+A_1 = 	{ReLU}(Z_1) \\
 Z_2 = W_2A_1 + b_2 \\
-A_2 = 	ext{Softmax}(Z_2)
+A_2 = 	{Softmax}(Z_2)
 $$
 
 #### Loss Function
@@ -57,7 +57,7 @@ $$
 dZ_2 = A_2 - Y \\
 dW_2 = \frac{1}{m}dZ_2 A_1^T \\
 db_2 = \frac{1}{m} \sum dZ_2 \\
-dZ_1 = W_2^T dZ_2 * 	ext{ReLU}'(Z_1) \\
+dZ_1 = W_2^T dZ_2 * 	{ReLU}'(Z_1) \\
 dW_1 = \frac{1}{m}dZ_1 X^T \\
 db_1 = \frac{1}{m} \sum dZ_1
 $$
