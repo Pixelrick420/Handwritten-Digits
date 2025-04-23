@@ -3,7 +3,6 @@ import tkinter as tk
 from tkinter import Frame, Button, Canvas
 from scipy.ndimage import center_of_mass, shift
 
-
 theme1 = "#121212"  
 theme2 = "#99E5FF"  
 
