@@ -1,6 +1,6 @@
 Dataset/
 .vscode/
-.gitignore
+*.gitignore
 __pycache__/
 *.pyc
 *.log
