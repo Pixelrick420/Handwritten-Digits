@@ -99,14 +99,21 @@ The GUI allows the user to draw a digit, which is then:
 
 ### GUI
 
-
+![image](https://github.com/user-attachments/assets/27617268-820e-46c2-a8af-1c37e58dce1b)
 
 ### Output
 - Training log
 
+![image](https://github.com/user-attachments/assets/527d3cb3-ae49-486f-9465-c7812d6ce2dc)
+
+
 - Drawing '5' on the canvas yields prediction: **5**
+  
+![image](https://github.com/user-attachments/assets/ddb5e584-d6b8-45d4-9368-6934426ce87e)
 
 - Drawing '3' yields prediction: **3**
+
+![image](https://github.com/user-attachments/assets/21e5dfb9-9b12-47d8-9524-23257c1d8af4)
 
 ## Usage
 
