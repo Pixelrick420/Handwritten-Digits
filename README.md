@@ -15,8 +15,8 @@ The [MNIST dataset](https://www.tensorflow.org/datasets/catalog/mnist) consists 
 The neural network follows a feedforward architecture with the following layers:
 
 - Input Layer: 784 neurons (corresponding to the 28×28 image size)
-- First Hidden Layer: 512 neurons with ReLU activation
-- Second Hidden Layer: 192 neurons with ReLU activation
+- First Hidden Layer: 1024 neurons with ReLU activation
+- Second Hidden Layer: 256 neurons with ReLU activation
 - Output Layer: 10 neurons with Softmax activation
 
 The model is trained using mini-batch gradient descent with a batch size of 64.
