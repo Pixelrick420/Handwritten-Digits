@@ -6,10 +6,10 @@ import random
 Constants for neural network layer sizes
 """
 IMAGESIZE = 784
-HIDDENSIZE1 = 512
-HIDDENSIZE2 = 192
+HIDDENSIZE1 = 1024
+HIDDENSIZE2 = 256
 OUTPUTSIZE = 10
-ITERATIONS = 300
+ITERATIONS = 400
 
 """
 Global variables for datasets
