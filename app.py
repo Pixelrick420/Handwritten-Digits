@@ -59,12 +59,16 @@ class DigitRecognitionApp:
 
     def loadModel(self):
         try:
-            self.W1 = np.loadtxt("W1.txt")
-            self.W2 = np.loadtxt("W2.txt")
-            self.b1 = np.loadtxt("b1.txt").reshape(-1, 1)
-            self.b2 = np.loadtxt("b2.txt").reshape(-1, 1)
-            self.mean = np.loadtxt("mean.txt").reshape(-1, 1)
-            self.std = np.loadtxt("std.txt").reshape(-1, 1)
+            model_data = np.load("recognition.npz")
+            
+            self.W1 = model_data['W1']
+            self.W2 = model_data['W2']
+            self.W3 = model_data['W3']
+            self.b1 = model_data['b1'].reshape(-1, 1)
+            self.b2 = model_data['b2'].reshape(-1, 1)
+            self.b3 = model_data['b3'].reshape(-1, 1)
+            self.mean = model_data['mean'].reshape(-1, 1)
+            self.std = model_data['std'].reshape(-1, 1)
         except Exception as e:
             print(f"Error loading model: {e}")
             self.root.after(0, self.root.destroy)
@@ -137,11 +141,17 @@ class DigitRecognitionApp:
     def forwardPass(self, X):
         relu = lambda x: np.maximum(0, x)
         softmax = lambda x: np.exp(x - np.max(x)) / np.sum(np.exp(x - np.max(x)))
+        
         Z1 = self.W1 @ X + self.b1
         A1 = relu(Z1)
+        
         Z2 = self.W2 @ A1 + self.b2
-        A2 = softmax(Z2)
-        return np.argmax(A2, axis=0)[0]
+        A2 = relu(Z2)
+        
+        Z3 = self.W3 @ A2 + self.b3
+        A3 = softmax(Z3)
+        
+        return np.argmax(A3, axis=0)[0]
 
     def run(self):
         self.root.mainloop()

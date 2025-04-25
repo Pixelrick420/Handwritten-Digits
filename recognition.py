@@ -6,8 +6,10 @@ import random
 Constants for neural network layer sizes
 """
 IMAGESIZE = 784
-HIDDENSIZE = 1024
+HIDDENSIZE1 = 512
+HIDDENSIZE2 = 192
 OUTPUTSIZE = 10
+ITERATIONS = 300
 
 """
 Global variables for datasets
@@ -89,22 +91,40 @@ W2: weights from hidden to output layer
 b2: biases for output layer
 """
 def init():
-    W1 = np.random.randn(HIDDENSIZE, IMAGESIZE) * np.sqrt(2. / IMAGESIZE)
-    W2 = np.random.randn(OUTPUTSIZE, HIDDENSIZE) * np.sqrt(2. / HIDDENSIZE)
-    b1 = np.random.randn(HIDDENSIZE, 1)
-    b2 = np.random.randn(OUTPUTSIZE, 1)
-    return W1, b1, W2, b2
+    W1 = np.random.randn(HIDDENSIZE1, IMAGESIZE) * np.sqrt(2. / IMAGESIZE)
+    b1 = np.random.randn(HIDDENSIZE1, 1)
+
+    W2 = np.random.randn(HIDDENSIZE2, HIDDENSIZE1) * np.sqrt(2. / HIDDENSIZE1)
+    b2 = np.random.randn(HIDDENSIZE2, 1)
+
+    W3 = np.random.randn(OUTPUTSIZE, HIDDENSIZE2) * np.sqrt(2. / HIDDENSIZE2)
+    b3 = np.random.randn(OUTPUTSIZE, 1)
+
+    return W1, b1, W2, b2, W3, b3
 
 """
 Forward pass through the network
 Returns intermediate outputs for backpropagation
+
+Z1 = W1.X + b1
+A1 = reLU(Z1)
+
+Z2 = W2.A1 + b2
+A2 = reLU(Z2)
+
+Z3 = W3.A2 + b3
+A3 = softmax(Z3)
 """
-def forwardPass(W1, b1, W2, b2, X):
+def forwardPass(X, W1, b1, W2, b2, W3, b3):
     Z1 = W1.dot(X) + b1 
     A1 = reLU(Z1)
+
     Z2 = W2.dot(A1) + b2 
-    A2 = softmax(Z2)
-    return Z1, A1, Z2, A2
+    A2 = reLU(Z2)
+
+    Z3 = W3.dot(A2) + b3
+    A3 = softmax(Z3)
+    return Z1, A1, Z2, A2, Z3, A3
 
 """
 Convert numeric labels to one-hot encoded format
@@ -120,25 +140,40 @@ def getExpected(vector):
 Perform backpropagation to compute gradients
 Returns gradients for all weights and biases
 """
-def backPropogate(Z1, A1, Z2, A2, W2, X, labels):
+def backPropogate(X, Z1, A1, W1, Z2, A2, W2, Z3, A3, W3, labels):
+    N = labels.size
     expected = getExpected(labels)
-    dZ2 = A2 - expected
-    dW2 = (1 / labels.size) * (dZ2.dot(A1.T))
-    db2 = (1 / labels.size) * np.sum(dZ2, axis=1, keepdims=True)
-    dZ1 = W2.T.dot(dZ2) * derivReLU(Z1)
-    dW1 = (1 / labels.size) * (dZ1.dot(X.T))
-    db1 = (1 / labels.size) * np.sum(dZ1, axis=1, keepdims=True)
-    return dW1, db1, dW2, db2
+
+    dZ3 = A3 - expected
+    dW3 = (1 / N) * (dZ3.dot(A2.T))
+    db3 = (1 / N) * (np.sum(dZ3, axis=1, keepdims=True))
+    
+    dA2 = W3.T.dot(dZ3)
+    dZ2 = dA2 * derivReLU(Z2)
+    dW2 = (1 / N) * (dZ2.dot(A1.T))
+    db2 = (1 / N) * (np.sum(dZ2, axis=1, keepdims=True))
+
+    dA1 = W2.T.dot(dZ2)
+    dZ1 = dA1 * derivReLU(Z1)
+    dW1 = (1 / N) * (dZ1.dot(X.T))
+    db1 = (1 / N) * (np.sum(dZ1, axis=1, keepdims=True))
+
+    return dW1, db1, dW2, db2, dW3, db3
 
 """
 Update weights and biases using computed gradients
 """
-def update(W1, b1, W2, b2, dW1, db1, dW2, db2, alpha = 0.1):
+def update(W1, b1, W2, b2, W3, b3, dW1, db1, dW2, db2, dW3, db3, alpha = 0.1):
     W1  = W1 - (alpha * dW1)
-    W2 = W2 - (alpha * dW2)
     b1 = b1 - (alpha * db1)
+
+    W2 = W2 - (alpha * dW2)
     b2 = b2 - (alpha * db2)
-    return W1, b1, W2, b2
+
+    W3 = W3 - (alpha * dW3)
+    b3 = b3 - (alpha * db3)
+
+    return W1, b1, W2, b2, W3, b3
 
 """
 Return the predicted class index with the highest probability
@@ -158,7 +193,7 @@ Performs shuffling of data after each iteration
 Prints accuracy every 50 iterations
 """
 def gradientDescent(images, labels, iterations, alpha = 0.1, batchSize = 64):
-    W1, b1, W2, b2 = init()
+    W1, b1, W2, b2, W3, b3 = init()
     for _ in range(iterations):
         """
         Shuffle data after each full pass
@@ -174,34 +209,39 @@ def gradientDescent(images, labels, iterations, alpha = 0.1, batchSize = 64):
             imageBatch = images[:, j:j+batchSize]
             labelBatch = labels[j:j+batchSize]
 
-            Z1, A1, Z2, A2 = forwardPass(W1, b1, W2, b2, imageBatch)
-            dW1, db1, dW2, db2 = backPropogate(Z1, A1, Z2, A2, W2, imageBatch, labelBatch)
-            W1, b1, W2, b2 = update(W1, b1, W2, b2, dW1, db1, dW2, db2, alpha)
+            Z1, A1, Z2, A2, Z3, A3 = forwardPass(imageBatch, W1, b1, W2, b2, W3, b3)
+            dW1, db1, dW2, db2, dW3, db3 = backPropogate(imageBatch, Z1, A1, W1, Z2, A2, W2, Z3, A3, W3, labelBatch)
+            W1, b1, W2, b2, W3, b3 = update(W1, b1, W2, b2, W3, b3, dW1, db1, dW2, db2, dW3, db3, alpha)
 
         """
         Display progress every 50 iterations
         """
         if (_ % 50 == 0):
             print("Iteration :", _)
-            _, _, _, testA2 = forwardPass(W1, b1, W2, b2, trainImages)
-            print("Accuracy :", evaluate(predict(testA2), trainLabels))
+            _, _, _, _, _, testA3 = forwardPass(trainImages, W1, b1, W2, b2, W3, b3)
+            print("Accuracy :", evaluate(predict(testA3), trainLabels))
     
         elif (_ >= iterations - 1):
             print("Iteration :", iterations)
-            _, _, _, testA2 = forwardPass(W1, b1, W2, b2, trainImages)
-            acc = evaluate(predict(testA2), trainLabels)
+            _, _, _, _, _, testA3 = forwardPass(trainImages, W1, b1, W2, b2, W3, b3)
+            acc = evaluate(predict(testA3), trainLabels)
             print("Final Accuracy :", acc)
 
-    return W1, b1, W2, b2, acc
+    return W1, b1, W2, b2, W3, b3, acc
 
 """
 Save weights, biases, and normalization parameters to text files
 """
-def save(W1, b1, W2, b2, mean, std):
+def save(W1, b1, W2, b2, W3, b3, mean, std):
     np.savetxt("W1.txt", W1)
-    np.savetxt("W2.txt", W2)
     np.savetxt("b1.txt", b1)
+
+    np.savetxt("W2.txt", W2)
     np.savetxt("b2.txt", b2)
+
+    np.savetxt("W3.txt", W3)
+    np.savetxt("b3.txt", b3)
+
     np.savetxt("mean.txt", mean)
     np.savetxt("std.txt", std)
 
@@ -209,9 +249,9 @@ def save(W1, b1, W2, b2, mean, std):
 """
 Recognize an image and predict the digit 
 """
-def recognize(X, W1, b1, W2, b2):
-    _, _, _, A2 = forwardPass(W1, b1, W2, b2, X)
-    predictions = predict(A2)
+def recognize(X, W1, b1, W2, b2, W3, b3):
+    _, _, _, _, _, A3 = forwardPass(X, W1, b1, W2, b2, W3, b3)
+    predictions = predict(A3)
     return predictions
 
 
@@ -232,24 +272,34 @@ def displayImage(image, width=28, height=28):
 """
 Test the model using an image at a given index
 """
-def test(index, W1, b1, W2, b2):
+def test(index, W1, b1, W2, b2, W3, b3):
     current = trainRaw[:, index, None]
-    prediction = recognize(trainImages[:, index, None], W1, b1, W2, b2)
-    print("Prediction: ", prediction)
-    print("Actual : ", trainLabels[index])
-    displayImage(current)
+    prediction = recognize(trainImages[:, index, None], W1, b1, W2, b2, W3, b3)
+    
+    if prediction[0] == trainLabels[index]:
+        return True
+    else:
+        print("Prediction: ", prediction)
+        print("Actual : ", trainLabels[index])
+        displayImage(current)
+        return False
 
 """
 Train the network and save the trained model if its accuracy is good, else do it again
 """
-W1, b1, W2, b2, accuracy = gradientDescent(trainImages, trainLabels, 500)
-save(W1, b1, W2, b2, mean, std)
+W1, b1, W2, b2, W3, b3, accuracy = gradientDescent(trainImages, trainLabels, ITERATIONS)
+save(W1, b1, W2, b2, W3, b3, mean, std)
+np.savez("recognition.npz", W1=W1, b1=b1, W2=W2, b2=b2, W3=W3, b3=b3, mean=mean, std=std)
 
-for _ in range(10):
-    test(random.randint(0, nImages), W1, b1, W2, b2)
+images = 0
+for i in range(nImages):
+    if not (test(i, W1, b1, W2, b2, W3, b3)):
+        images += 1
+
+print(images)
 
 """
 Test accuracy against test data
 """
-final = recognize(testImages, W1, b1, W2, b2)
+final = recognize(testImages, W1, b1, W2, b2, W3, b3)
 print("Final final Accuracy :", evaluate(final, testLabels))
