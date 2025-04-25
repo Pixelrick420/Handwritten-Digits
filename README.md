@@ -1,4 +1,3 @@
-
 # Handwritten Digit Recognition using a Fully Connected Neural Network
 
 ## Overview
@@ -13,13 +12,14 @@ The [MNIST dataset](https://www.tensorflow.org/datasets/catalog/mnist) consists 
 
 ## Architecture
 
-The neural network follows a basic feedforward architecture with the following layers:
+The neural network follows a feedforward architecture with the following layers:
 
 - Input Layer: 784 neurons (corresponding to the 28×28 image size)
-- Hidden Layer: 1024 neurons with ReLU activation
+- First Hidden Layer: 512 neurons with ReLU activation
+- Second Hidden Layer: 192 neurons with ReLU activation
 - Output Layer: 10 neurons with Softmax activation
 
-The model is trained using mini-batch gradient descent.
+The model is trained using mini-batch gradient descent with a batch size of 64.
 
 ### Mathematics
 
@@ -53,21 +53,45 @@ Z^{[2]} = W^{[2]}A^{[1]} + b^{[2]}
 ```
 
 ```math
-A^{[2]} = \text{Softmax}(Z^{[2]})
+A^{[2]} = \text{ReLU}(Z^{[2]})
+```
+
+```math
+Z^{[3]} = W^{[3]}A^{[2]} + b^{[3]}
+```
+
+```math
+A^{[3]} = \text{Softmax}(Z^{[3]})
 ```
 
 ## Loss Function
 The loss function used is cross-entropy loss:
 
 ```math
-\mathcal{L} = -\frac{1}{m} \sum_{i=1}^{m} Y^{(i)} \log(A^{[2](i)})
+\mathcal{L} = -\frac{1}{m} \sum_{i=1}^{m} Y^{(i)} \log(A^{[3](i)})
 ```
 
 ## Backpropagation
 The gradients are computed as follows:
 
 ```math
-dZ^{[2]} = A^{[2]} - Y
+dZ^{[3]} = A^{[3]} - Y
+```
+
+```math
+dW^{[3]} = \frac{1}{m} dZ^{[3]} A^{[2]^T}
+```
+
+```math
+db^{[3]} = \frac{1}{m} \sum dZ^{[3]}
+```
+
+```math
+dA^{[2]} = W^{[3]^T} dZ^{[3]}
+```
+
+```math
+dZ^{[2]} = dA^{[2]} * \text{ReLU}'(Z^{[2]})
 ```
 
 ```math
@@ -79,7 +103,11 @@ db^{[2]} = \frac{1}{m} \sum dZ^{[2]}
 ```
 
 ```math
-dZ^{[1]} = (W^{[2]^T} dZ^{[2]}) * \text{ReLU}'(Z^{[1]})
+dA^{[1]} = W^{[2]^T} dZ^{[2]}
+```
+
+```math
+dZ^{[1]} = dA^{[1]} * \text{ReLU}'(Z^{[1]})
 ```
 
 ```math
@@ -89,7 +117,6 @@ dW^{[1]} = \frac{1}{m} dZ^{[1]} X^T
 ```math
 db^{[1]} = \frac{1}{m} \sum dZ^{[1]}
 ```
-
 
 ## GUI Application
 
@@ -104,7 +131,7 @@ The GUI allows the user to draw a digit, which is then:
 
 - Real-time digit drawing on a canvas
 - Display of predicted digit
-- Uses saved weights and biases
+- Uses saved model parameters from an .npz file
 
 ### Libraries Used
 
@@ -114,14 +141,13 @@ The GUI allows the user to draw a digit, which is then:
 
 ## File Structure
 
-- `W1.txt`, `W2.txt`, `b1.txt`, `b2.txt`: Model weights and biases
-- `mean.txt`, `std.txt`: Normalization parameters
+- `recognition.npz`: Contains all model weights, biases, and normalization parameters
 - `app.py`: Tkinter-based GUI for drawing and recognizing digits
 - `recognition.py`: Neural network training and saving
 
 ## Accuracy
 
-- Final test accuracy: **~97%**
+- Final test accuracy: **~98%**
 - Training accuracy is evaluated at regular intervals during training
 
 ## Example GUI & Output
@@ -151,7 +177,7 @@ The GUI allows the user to draw a digit, which is then:
 ```bash
 python recognition.py
 ```
-You can also use the default weights. Or try tweaking the code to get better performance.
+This will generate a `recognition.npz` file containing all model parameters.
 
 2. Launch the GUI by running:
 
@@ -159,13 +185,14 @@ You can also use the default weights. Or try tweaking the code to get better per
 python app.py
 ```
 
-Ensure model weights and parameters (`W1.txt`, `b1.txt`, etc.) are in the same directory.
+Ensure the model file (`recognition.npz`) is in the same directory.
 
 ## Future Work
 
 - Improve accuracy with convolutional layers
 - Save training progress with checkpoints
 - Allow user to load their own images
+- Experiment with different layer sizes and architectures
 
 ## License
 
