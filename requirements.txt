@@ -1,0 +1,6 @@
+# Runtime dependencies
+# recognition.py: numpy (pure NumPy neural network)
+# app.py:         numpy, scipy.ndimage (centre of mass + shift preprocessing)
+# tkinter is part of the Python standard library and is not listed here.
+numpy>=2.5
+scipy>=1.16
