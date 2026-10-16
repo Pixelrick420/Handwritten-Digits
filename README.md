@@ -8,7 +8,7 @@ I learned all of the maths for implementing this from [3blue1brown](https://www.
 
 ## Dataset
 
-The [MNIST dataset](https://www.tensorflow.org/datasets/catalog/mnist) consists of 60,000 training images and 10,000 testing images. Each image is a grayscale 28x28 pixel representation of a handwritten digit (0–9). The dataset is used in CSV format where the first column represents the digit label and the remaining 784 columns represent pixel intensities.
+The [MNIST dataset](https://www.tensorflow.org/datasets/catalog/mnist) consists of 60,000 training images and 10,000 testing images. Each image is a grayscale 28x28 pixel representation of a handwritten digit (0–9). In the CSV files, the first column is the digit label and the remaining 784 columns are pixel intensities.
 
 The CSV files are not committed to this repository. Download the official IDX files into a `Dataset/` folder and convert them:
 
@@ -22,7 +22,7 @@ curl -O https://storage.googleapis.com/cvdf-datasets/mnist/t10k-labels-idx1-ubyt
 cd ..
 ```
 
-Then convert them to the CSV layout `recognition.py` expects — **label in the first column**, followed by the 784 pixel intensities, with a header row:
+Then convert them to the CSV layout `recognition.py` expects: **label in the first column**, followed by the 784 pixel intensities, with a header row:
 
 ```bash
 python3 - <<'PY'
@@ -48,11 +48,11 @@ print("wrote Dataset/mnist_train.csv and Dataset/mnist_test.csv")
 PY
 ```
 
-This produces `Dataset/mnist_train.csv` (60,000 rows) and `Dataset/mnist_test.csv` (10,000 rows), which is exactly where `recognition.py` looks for them.
+This produces `Dataset/mnist_train.csv` (60,000 rows) and `Dataset/mnist_test.csv` (10,000 rows), which is where `recognition.py` looks for them.
 
 ## Architecture
 
-The neural network follows a feedforward architecture with the following layers:
+The neural network is feedforward, with these layers:
 
 - Input Layer: 784 neurons (corresponding to the 28×28 image size)
 - First Hidden Layer: 1024 neurons with ReLU activation
@@ -190,7 +190,7 @@ The GUI allows the user to draw a digit, which is then:
 ## Accuracy
 
 - Final test accuracy: **~98.1%**
-- Training accuracy is evaluated at regular intervals during training
+- Accuracy is printed after every epoch
 - The best-by-test parameters are saved, so the exported model reflects the best epoch rather than the last one
 
 ## Example GUI & Output
